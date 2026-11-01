@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="ルネの冒険者カフェのレシピ一覧。料理名・材料・ツールからレシピを検索できます。">
+<meta name="theme-color" content="#76533f">
+<title>ルネの冒険者カフェ｜レシピ一覧</title>
+<style>
+:root{--ink:#35271f;--muted:#76675d;--paper:#fffdf8;--brown:#76533f;--line:#e8dccb;--accent:#b97845}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:#f3e8d8;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
+.wrap{width:min(100% - 32px,1050px);margin:auto;padding:42px 0 64px}header{text-align:center;margin-bottom:28px}
+.eyebrow{display:inline-block;color:var(--brown);font-size:12px;font-weight:700;letter-spacing:.18em;margin-bottom:10px}
+h1{margin:0;font-size:clamp(27px,5vw,42px);letter-spacing:.04em;line-height:1.35}.subtitle{margin:12px 0 0;color:var(--muted);font-size:19px;font-weight:700;letter-spacing:.06em}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:clamp(18px,4vw,28px);box-shadow:0 8px 28px rgba(74,48,29,.08)}
+.search-row{display:grid;grid-template-columns:155px minmax(0,1fr);gap:12px}
+select,input{width:100%;min-height:48px;border:1px solid #d9c9b7;border-radius:11px;background:#fff;color:var(--ink);padding:0 14px;font:inherit;font-size:15px;outline:none}
+select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(185,120,69,.14)}.tool-select{margin-top:12px}
+.hint{color:var(--muted);font-size:12px;margin:10px 2px 0}.summary{display:flex;justify-content:space-between;align-items:center;margin:25px 2px 12px}
+.count{color:var(--muted);font-size:14px}.count strong{color:#553a2c;font-size:20px;margin-right:3px}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff}
+table{width:100%;border-collapse:collapse;min-width:850px}th,td{padding:14px 16px;text-align:left;border-bottom:1px solid #f0e8de;vertical-align:middle}
+th{background:#f7f0e6;color:#553a2c;font-size:13px;font-weight:700;white-space:nowrap}td{font-size:14px;line-height:1.6}
+tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#fffcf6}.number{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dish{font-weight:700}.empty,.status{padding:28px 16px;text-align:center;color:var(--muted)}.status{font-size:14px}.error{color:#a13d32}
+footer{text-align:center;color:#938477;font-size:12px;margin-top:22px}
+@media(max-width:600px){.wrap{width:min(100% - 22px,1050px);padding-top:30px}.search-row{grid-template-columns:1fr;gap:9px}.panel{border-radius:16px}.summary{margin-top:21px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header><div class="eyebrow">RECIPE DATABASE</div><h1>ルネの冒険者カフェ</h1><p class="subtitle">レシピ一覧</p></header>
+<section class="panel" aria-label="レシピ検索">
+<div class="search-row">
+<select id="searchType" aria-label="検索対象"><option value="all">すべて</option><option value="name">料理名</option><option value="material">材料</option><option value="tool">ツール</option></select>
+<input id="searchInput" type="search" placeholder="料理名を入力" autocomplete="off" aria-label="料理名で検索">
+</div>
+<div id="toolFilter" class="tool-select" hidden>
+<select id="toolSelect" aria-label="ツールを選択">
+<option value="">すべてのツール</option><option>ティーポット</option><option>オーブン</option><option>フライパン</option><option>ミキサー</option><option>ナベ</option><option>ボウル</option><option>トースター</option><option>クレープトンボ</option><option>串セット</option><option>フライヤー</option><option>デコレーションセット</option><option>アイスディッシャー</option><option>トング</option><option>カマド</option>
+</select></div>
+<p class="hint" id="searchHint">料理名に含まれる文字で検索します。</p>
+</section>
+<div class="summary"><div class="count"><strong id="resultCount">0</strong>件のレシピ</div></div>
+<section class="table-wrap" aria-label="レシピ一覧">
+<div id="status" class="status">レシピを読み込んでいます…</div>
+<table id="recipeTable" hidden><thead><tr><th>図鑑No.</th><th>料理名</th><th>材料1</th><th>材料2</th><th>材料3</th><th>ツール</th></tr></thead><tbody id="recipeBody"></tbody></table>
+<div id="empty" class="empty" hidden>該当するレシピがありません。</div>
+</section>
+</main>
+<script>
+const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vQJT27kYqXuZv752huW9BTvA3KGTJUueNrPpytc7utnTPnO7n_bhuIuHall97NertegYAefisdRpfPV/pub?gid=0&single=true&output=csv";
+const $=id=>document.getElementById(id);
+let recipes=[];
+function parseCSV(text){
+ const rows=[];let row=[],field="",quoted=false;
+ for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];
+  if(quoted){if(c==='"'&&n==='"'){field+='"';i++;}else if(c==='"')quoted=false;else field+=c;}
+  else if(c==='"')quoted=true;else if(c===","){row.push(field);field="";}
+  else if(c==="\n"){row.push(field);rows.push(row);row=[];field="";}
+  else if(c!=="\r")field+=c;
+ }
+ if(field.length||row.length){row.push(field);rows.push(row);}return rows;
+}
+const norm=v=>String(v??"").trim().toLocaleLowerCase("ja");
+function render(){
+ const type=$("searchType").value,word=norm($("searchInput").value),tool=$("toolSelect").value;
+ const found=recipes.filter(r=>{
+  if(type==="all")return !word||norm([r.name,r.m1,r.m2,r.m3].join(" ")).includes(word);
+  if(type==="name")return !word||norm(r.name).includes(word);
+  if(type==="material")return !word||norm([r.m1,r.m2,r.m3].join(" ")).includes(word);
+  return !tool||norm(r.tool)===norm(tool);
+ });
+ $("recipeBody").replaceChildren();$("resultCount").textContent=found.length.toLocaleString("ja-JP");
+ $("recipeTable").hidden=found.length===0;$("empty").hidden=found.length!==0;$("status").hidden=true;
+ for(const r of found){
+  const tr=document.createElement("tr");
+  for(const [value,cls] of [[r.no,"number"],[r.name,"dish"],[r.m1||"—",""],[r.m2||"—",""],[r.m3||"—",""],[r.tool||"—",""]]){
+   const td=document.createElement("td");td.textContent=value;td.className=cls;tr.appendChild(td);
+  }$("recipeBody").appendChild(tr);
+ }
+}
+function changeMode(){
+ const type=$("searchType").value,isTool=type==="tool";
+ $("searchInput").hidden=isTool;$("toolFilter").hidden=!isTool;
+ if(type==="all"){$("searchInput").placeholder="料理名・材料を入力";$("searchInput").setAttribute("aria-label","すべてから検索");$("searchHint").textContent="料理名と材料1〜3を対象に検索します。";}
+ else if(type==="name"){$("searchInput").placeholder="料理名を入力";$("searchInput").setAttribute("aria-label","料理名で検索");$("searchHint").textContent="料理名に含まれる文字で検索します。";}
+ else if(type==="material"){$("searchInput").placeholder="材料名を入力";$("searchInput").setAttribute("aria-label","材料で検索");$("searchHint").textContent="材料1〜3に含まれる文字で検索します。";}
+ else $("searchHint").textContent="ツールを選択すると、そのツールを使うレシピだけを表示します。";
+ render();
+}
+$("searchType").addEventListener("change",changeMode);$("searchInput").addEventListener("input",render);$("toolSelect").addEventListener("change",render);
+// 初期表示時にも、選択中の検索対象「すべて」に合わせて案内文を更新する
+changeMode();
+async function load(){
+ try{
+  const res=await fetch(CSV_URL,{cache:"no-store"});if(!res.ok)throw Error("CSV取得失敗");
+  const rows=parseCSV(await res.text());if(!rows.length)throw Error("CSVが空です");
+  const headers=rows[0].map(v=>v.trim().replace(/^\uFEFF/,"")),idx=n=>headers.indexOf(n);
+  const needed=["図鑑No","料理名","材料1","材料2","材料3","ツール"],missing=needed.filter(n=>idx(n)<0);
+  if(missing.length)throw Error("必要な列がありません: "+missing.join("、"));
+  recipes=rows.slice(1).filter(r=>r.some(v=>String(v??"").trim())).map(r=>({no:r[idx("図鑑No")]||"",name:r[idx("料理名")]||"",m1:r[idx("材料1")]||"",m2:r[idx("材料2")]||"",m3:r[idx("材料3")]||"",tool:r[idx("ツール")]||""}));
+  changeMode();
+ }catch(e){$("status").hidden=false;$("status").classList.add("error");$("status").textContent="レシピを読み込めませんでした。スプレッドシートの公開設定と列名（図鑑No・料理名・材料1〜3・ツール）を確認してください。";console.error(e);}
+}
+load();
+</script>
+</body>
+</html>
