@@ -117,7 +117,7 @@ function render(){
 function changeMode(){
  const type=$("searchType").value,isTool=type==="tool";
  $("searchInput").hidden=isTool;$("toolFilter").hidden=!isTool;
- if(type==="number"){$("searchInput").placeholder="図鑑Noを入力";$("searchInput").setAttribute("aria-label","図鑑Noで検索");$("searchHint").textContent="図鑑Noに含まれる数字で検索します。";}
+ if(type==="number"){$("searchInput").placeholder="図鑑Noを入力";$("searchInput").setAttribute("aria-label","図鑑Noで検索");$("searchHint").textContent="図鑑Noを入力して検索します。";}
  else if(type==="name"){$("searchInput").placeholder="料理名を入力";$("searchInput").setAttribute("aria-label","料理名で検索");$("searchHint").textContent="料理名に含まれる文字で検索します。";}
  else if(type==="material"){$("searchInput").placeholder="材料名を入力";$("searchInput").setAttribute("aria-label","材料で検索");$("searchHint").textContent="材料1〜3に含まれる文字で検索します。";}
  else $("searchHint").textContent="ツールを選択すると、そのツールを使うレシピだけを表示します。";
