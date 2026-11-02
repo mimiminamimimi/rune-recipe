@@ -22,9 +22,29 @@ select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(18
 table{width:100%;border-collapse:collapse;min-width:850px}th,td{padding:14px 16px;text-align:left;border-bottom:1px solid #f0e8de;vertical-align:middle}
 th{background:#f7f0e6;color:#553a2c;font-size:13px;font-weight:700;white-space:nowrap}td{font-size:14px;line-height:1.6}
 tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#fffcf6}.number{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.recipe-cards{display:none}
+.recipe-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin:0 0 10px}
+.card-no{font-size:12px;color:var(--muted);margin-bottom:5px}
+.card-title{font-size:16px;font-weight:700;line-height:1.5;margin-bottom:12px}
+.card-details{display:grid;gap:10px}
+.card-label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px}
+.card-value{font-size:14px;line-height:1.6;overflow-wrap:anywhere}
 .dish{font-weight:700}.empty,.status{padding:28px 16px;text-align:center;color:var(--muted)}.status{font-size:14px}.error{color:#a13d32}
 footer{text-align:center;color:#938477;font-size:12px;margin-top:22px}
-@media(max-width:600px){.wrap{width:min(100% - 22px,1050px);padding-top:30px}.search-row{grid-template-columns:1fr;gap:9px}.panel{border-radius:16px}.summary{margin-top:21px}}
+@media(max-width:600px){
+.wrap{width:min(100% - 22px,1050px);padding-top:24px;padding-bottom:36px}
+header{margin-bottom:20px}
+h1{font-size:27px}
+.subtitle{font-size:17px}
+.search-row{grid-template-columns:1fr;gap:9px}
+.panel{border-radius:16px;padding:16px}
+.summary{margin-top:21px}
+.table-wrap{overflow:visible;border:0;background:transparent}
+#recipeTable{display:none}
+.recipe-cards{display:block}
+.recipe-card:last-child{margin-bottom:0}
+}
 </style>
 </head>
 <body>
@@ -45,6 +65,7 @@ footer{text-align:center;color:#938477;font-size:12px;margin-top:22px}
 <section class="table-wrap" aria-label="レシピ一覧">
 <div id="status" class="status">レシピを読み込んでいます…</div>
 <table id="recipeTable" hidden><thead><tr><th>図鑑No.</th><th>料理名</th><th>材料1</th><th>材料2</th><th>材料3</th><th>ツール</th></tr></thead><tbody id="recipeBody"></tbody></table>
+<div id="recipeCards" class="recipe-cards"></div>
 <div id="empty" class="empty" hidden>該当するレシピがありません。</div>
 </section>
 </main>
@@ -71,13 +92,26 @@ function render(){
   if(type==="material")return !word||norm([r.m1,r.m2,r.m3].join(" ")).includes(word);
   return !tool||norm(r.tool)===norm(tool);
  });
- $("recipeBody").replaceChildren();$("resultCount").textContent=found.length.toLocaleString("ja-JP");
+ $("recipeBody").replaceChildren();$("recipeCards").replaceChildren();$("resultCount").textContent=found.length.toLocaleString("ja-JP");
  $("recipeTable").hidden=found.length===0;$("empty").hidden=found.length!==0;$("status").hidden=true;
  for(const r of found){
   const tr=document.createElement("tr");
   for(const [value,cls] of [[r.no,"number"],[r.name,"dish"],[r.m1||"—",""],[r.m2||"—",""],[r.m3||"—",""],[r.tool||"—",""]]){
    const td=document.createElement("td");td.textContent=value;td.className=cls;tr.appendChild(td);
-  }$("recipeBody").appendChild(tr);
+  }
+  $("recipeBody").appendChild(tr);
+
+  const card=document.createElement("article");card.className="recipe-card";
+  const no=document.createElement("div");no.className="card-no";no.textContent="図鑑No. "+(r.no||"—");card.appendChild(no);
+  const title=document.createElement("div");title.className="card-title";title.textContent=r.name||"名称未登録";card.appendChild(title);
+  const details=document.createElement("div");details.className="card-details";
+  const material=document.createElement("div");
+  const materialLabel=document.createElement("span");materialLabel.className="card-label";materialLabel.textContent="材料";material.appendChild(materialLabel);
+  const materialValue=document.createElement("div");materialValue.className="card-value";materialValue.textContent=[r.m1,r.m2,r.m3].filter(v=>String(v||"").trim()).join("・")||"—";material.appendChild(materialValue);
+  const tool=document.createElement("div");
+  const toolLabel=document.createElement("span");toolLabel.className="card-label";toolLabel.textContent="ツール";tool.appendChild(toolLabel);
+  const toolValue=document.createElement("div");toolValue.className="card-value";toolValue.textContent=r.tool||"—";tool.appendChild(toolValue);
+  details.append(material,tool);card.appendChild(details);$("recipeCards").appendChild(card);
  }
 }
 function changeMode(){
