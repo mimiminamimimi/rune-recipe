@@ -52,7 +52,7 @@ h1{font-size:23px}
 <header><h1>ルネの冒険者カフェ</h1><p class="subtitle">レシピ一覧</p></header>
 <section class="panel" aria-label="レシピ検索">
 <div class="search-row">
-<select id="searchType" aria-label="検索対象"><option value="all">すべて</option><option value="number">図鑑No</option><option value="name">料理名</option><option value="material">材料</option><option value="tool">ツール</option></select>
+<select id="searchType" aria-label="検索対象"><option value="number">図鑑No</option><option value="name">料理名</option><option value="material">材料</option><option value="tool">ツール</option></select>
 <input id="searchInput" type="search" placeholder="料理名を入力" autocomplete="off" aria-label="料理名で検索">
 </div>
 <div id="toolFilter" class="tool-select" hidden>
@@ -87,8 +87,7 @@ const norm=v=>String(v??"").trim().toLocaleLowerCase("ja");
 function render(){
  const type=$("searchType").value,word=norm($("searchInput").value),tool=$("toolSelect").value;
  const found=recipes.filter(r=>{
-  if(type==="all")return !word||norm([r.name,r.m1,r.m2,r.m3].join(" ")).includes(word);
-  if(type==="number")return !word||norm(r.no).includes(word);
+  if(type==="number")return !word||norm(r.no)===word;
   if(type==="name")return !word||norm(r.name).includes(word);
   if(type==="material")return !word||norm([r.m1,r.m2,r.m3].join(" ")).includes(word);
   return !tool||norm(r.tool)===norm(tool);
@@ -118,8 +117,7 @@ function render(){
 function changeMode(){
  const type=$("searchType").value,isTool=type==="tool";
  $("searchInput").hidden=isTool;$("toolFilter").hidden=!isTool;
- if(type==="all"){$("searchInput").placeholder="料理名・材料を入力";$("searchInput").setAttribute("aria-label","すべてから検索");$("searchHint").textContent="料理名と材料1〜3を対象に検索します。";}
- else if(type==="number"){$("searchInput").placeholder="図鑑Noを入力";$("searchInput").setAttribute("aria-label","図鑑Noで検索");$("searchHint").textContent="図鑑Noに含まれる数字で検索します。";}
+ if(type==="number"){$("searchInput").placeholder="図鑑Noを入力";$("searchInput").setAttribute("aria-label","図鑑Noで検索");$("searchHint").textContent="図鑑Noに含まれる数字で検索します。";}
  else if(type==="name"){$("searchInput").placeholder="料理名を入力";$("searchInput").setAttribute("aria-label","料理名で検索");$("searchHint").textContent="料理名に含まれる文字で検索します。";}
  else if(type==="material"){$("searchInput").placeholder="材料名を入力";$("searchInput").setAttribute("aria-label","材料で検索");$("searchHint").textContent="材料1〜3に含まれる文字で検索します。";}
  else $("searchHint").textContent="ツールを選択すると、そのツールを使うレシピだけを表示します。";
