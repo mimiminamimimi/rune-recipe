@@ -16,21 +16,21 @@ h1{margin:0;font-size:clamp(23px,4vw,32px);letter-spacing:.03em;line-height:1.2}
 .search-row{display:grid;grid-template-columns:155px minmax(0,1fr);gap:12px}
 select,input{width:100%;min-height:40px;border:1px solid #d9c9b7;border-radius:11px;background:#fff;color:var(--ink);padding:0 12px;font:inherit;font-size:14px;outline:none}
 select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(185,120,69,.14)}.tool-select{margin-top:12px}
-.hint{color:var(--muted);font-size:11px;margin:6px 2px 0}.summary{display:flex;justify-content:space-between;align-items:center;margin:14px 2px 7px}
-.count{color:var(--muted);font-size:14px}.count strong{color:#553a2c;font-size:20px;margin-right:3px}
+.hint{color:var(--muted);font-size:11px;margin:6px 2px 0}.summary{display:flex;justify-content:space-between;align-items:center;margin:9px 2px 5px}
+.count{color:var(--muted);font-size:12px}.count strong{color:#553a2c;font-size:16px;margin-right:2px}
 .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff}
-table{width:100%;border-collapse:collapse;min-width:850px}th,td{padding:9px 12px;text-align:left;border-bottom:1px solid #f0e8de;vertical-align:middle}
-th{background:#f7f0e6;color:#553a2c;font-size:13px;font-weight:700;white-space:nowrap}td{font-size:14px;line-height:1.6}
+table{width:100%;border-collapse:collapse;min-width:850px}th,td{padding:5px 9px;text-align:left;border-bottom:1px solid #f0e8de;vertical-align:middle}
+th{background:#f7f0e6;color:#553a2c;font-size:13px;font-weight:700;white-space:nowrap}td{font-size:13px;line-height:1.35}
 tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#fffcf6}.number{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 
 .recipe-cards{display:none}
-.recipe-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 16px;margin:0 0 10px}
-.card-no{font-size:12px;color:var(--muted);margin-bottom:5px}
-.card-title{font-size:16px;font-weight:700;line-height:1.5;margin-bottom:12px}
-.card-details{display:grid;gap:10px}
-.card-label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px}
-.card-value{font-size:14px;line-height:1.6;overflow-wrap:anywhere}
-.dish{font-weight:700}.empty,.status{padding:28px 16px;text-align:center;color:var(--muted)}.status{font-size:14px}.error{color:#a13d32}
+.recipe-card{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 11px;margin:0 0 6px}
+.card-no{font-size:10px;color:var(--muted);margin-bottom:2px}
+.card-title{font-size:14px;font-weight:700;line-height:1.25;margin-bottom:5px}
+.card-details{display:grid;gap:4px}
+.card-label{display:inline;font-size:10px;font-weight:700;color:var(--muted);margin:0 6px 0 0}
+.card-value{display:inline;font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+.dish{font-weight:700}.empty,.status{padding:14px 10px;text-align:center;color:var(--muted)}.status{font-size:14px}.error{color:#a13d32}
 footer{text-align:center;color:#938477;font-size:12px;margin-top:22px}
 @media(max-width:600px){
 .wrap{width:min(100% - 22px,1050px);padding-top:12px;padding-bottom:22px}
@@ -38,8 +38,8 @@ header{margin-bottom:10px}
 h1{font-size:23px}
 .subtitle{font-size:15px}
 .search-row{grid-template-columns:1fr;gap:9px}
-.panel{border-radius:14px;padding:11px}
-.summary{margin-top:11px}
+.panel{border-radius:12px;padding:9px}
+.summary{margin-top:8px}
 .table-wrap{overflow:visible;border:0;background:transparent}
 #recipeTable{display:none}
 .recipe-cards{display:block}
@@ -57,7 +57,7 @@ h1{font-size:23px}
 </div>
 <div id="toolFilter" class="tool-select" hidden>
 <select id="toolSelect" aria-label="ツールを選択">
-<option value="">すべてのツール</option><option>ティーポット</option><option>オーブン</option><option>フライパン</option><option>ミキサー</option><option>ナベ</option><option>ボウル</option><option>トースター</option><option>クレープトンボ</option><option>串セット</option><option>フライヤー</option><option>デコレーションセット</option><option>アイスディッシャー</option><option>トング</option><option>カマド</option>
+<option value="">すべてのツール</option><option>コーヒーミル</option><option>ティーポット</option><option>オーブン</option><option>フライパン</option><option>ミキサー</option><option>ナベ</option><option>ボウル</option><option>トースター</option><option>クレープトンボ</option><option>串セット</option><option>フライヤー</option><option>デコレーションセット</option><option>アイスディッシャー</option><option>トング</option><option>カマド</option>
 </select></div>
 <p class="hint" id="searchHint">料理名に含まれる文字で検索します。</p>
 </section>
