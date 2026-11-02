@@ -103,7 +103,7 @@ function render(){
   $("recipeBody").appendChild(tr);
 
   const card=document.createElement("article");card.className="recipe-card";
-  const no=document.createElement("div");no.className="card-no";no.textContent="図鑑No. "+(r.no||"—");card.appendChild(no);
+  const no=document.createElement("div");no.className="card-no";no.textContent="No."+(r.no||"—");card.appendChild(no);
   const title=document.createElement("div");title.className="card-title";title.textContent=r.name||"名称未登録";card.appendChild(title);
   const details=document.createElement("div");details.className="card-details";
   const material=document.createElement("div");
