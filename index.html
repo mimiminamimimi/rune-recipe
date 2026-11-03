@@ -85,6 +85,16 @@ function parseCSV(text){
  if(field.length||row.length){row.push(field);rows.push(row);}return rows;
 }
 const norm=v=>String(v??"").trim().toLocaleLowerCase("ja");
+
+function rareCondition(r){
+ const fromNo=String(r.rareFrom||"").trim();
+ if(!fromNo)return "—";
+ const source=recipes.find(x=>String(x.no).trim()===fromNo);
+ return source
+  ? `No.${source.no}「${source.name}」を作ると、たまにこの料理も作られます。`
+  : `No.${fromNo}の料理を作ると、たまにこの料理も作られます。`;
+}
+
 function render(){
  const type=$("searchType").value,word=norm($("searchInput").value),tool=$("toolSelect").value;
  const found=recipes.filter(r=>{
@@ -97,7 +107,7 @@ function render(){
  $("recipeTable").hidden=found.length===0;$("empty").hidden=found.length!==0;$("status").hidden=true;
  for(const r of found){
   const tr=document.createElement("tr");
-  for(const [value,cls] of [[r.no,"number"],[r.name,"dish"],[r.m1||"—",""],[r.m2||"—",""],[r.m3||"—",""],[r.tool||"—",""]]){
+  for(const [value,cls] of [[r.no,"number"],[r.name,"dish"],[r.m1||"—",""],[r.m2||"—",""],[r.m3||"—",""],[r.tool||"—",""],[rareCondition(r),""]]){
    const td=document.createElement("td");td.textContent=value;td.className=cls;tr.appendChild(td);
   }
   $("recipeBody").appendChild(tr);
@@ -112,7 +122,10 @@ function render(){
   const tool=document.createElement("div");
   const toolLabel=document.createElement("span");toolLabel.className="card-label";toolLabel.textContent="ツール";tool.appendChild(toolLabel);
   const toolValue=document.createElement("div");toolValue.className="card-value";toolValue.textContent=r.tool||"—";tool.appendChild(toolValue);
-  details.append(material,tool);card.appendChild(details);$("recipeCards").appendChild(card);
+  const rare=document.createElement("div");
+   const rareLabel=document.createElement("span");rareLabel.className="card-label";rareLabel.textContent="たまにできる条件";rare.appendChild(rareLabel);
+   const rareValue=document.createElement("div");rareValue.className="card-value";rareValue.textContent=rareCondition(r);rare.appendChild(rareValue);
+   details.append(material,tool,rare);card.appendChild(details);$("recipeCards").appendChild(card);
  }
 }
 function changeMode(){
@@ -134,7 +147,7 @@ async function load(){
   const headers=rows[0].map(v=>v.trim().replace(/^\uFEFF/,"")),idx=n=>headers.indexOf(n);
   const needed=["図鑑No","料理名","材料1","材料2","材料3","ツール"],missing=needed.filter(n=>idx(n)<0);
   if(missing.length)throw Error("必要な列がありません: "+missing.join("、"));
-  recipes=rows.slice(1).filter(r=>r.some(v=>String(v??"").trim())).map(r=>({no:r[idx("図鑑No")]||"",name:r[idx("料理名")]||"",m1:r[idx("材料1")]||"",m2:r[idx("材料2")]||"",m3:r[idx("材料3")]||"",tool:r[idx("ツール")]||"",g:r[6]||""}));
+  recipes=rows.slice(1).filter(r=>r.some(v=>String(v??"").trim())).map(r=>({no:r[idx("図鑑No")]||"",name:r[idx("料理名")]||"",m1:r[idx("材料1")]||"",m2:r[idx("材料2")]||"",m3:r[idx("材料3")]||"",tool:r[idx("ツール")]||"",rareFrom:r[6]||""}));
   changeMode();
  }catch(e){$("status").hidden=false;$("status").classList.add("error");$("status").textContent="レシピを読み込めませんでした。スプレッドシートの公開設定と列名（図鑑No・料理名・材料1〜3・ツール）を確認してください。";console.error(e);}
 }
